@@ -37,6 +37,9 @@ for ($i = 0; $i < count($threadIDs); $i++) {
 		continue;
 	}
 
+	echo "<div style=\"border: 4px solid rgb(0, 0, 0)\">";
+	echo "<div style=\"margin: 15px\">";
+
 	for ($j = 0; $j < count($json_array["message"]); $j++) {
 
 		$aComment = new Comment();
@@ -67,11 +70,13 @@ for ($i = 0; $i < count($threadIDs); $i++) {
 	
 	for ($j = 0; $j < count($commentArray); $j++) {
 
-		echo "<b>".$commentArray[$j]->userName."</b> <i>posted a comment on</i> <a href =".$commentArray[$j]->storyURL.">".$commentArray[$j]->storyName."</a>";
+		echo "<b>".$commentArray[$j]->userName."</b> <i>posted a comment on</i> <a href =".$commentArray[$j]->storyURL.">".$commentArray[$j]->storyName."</a>:";
 		echo "<br>";
-		echo "* ".$commentArray[$j]->commentContent."<br><br>";
+		echo "<ul>\"".$commentArray[$j]->commentContent."\"</ul>";
 	}	
-	echo "---<br><br>";
+
+	echo "</div></div>";
+	echo "<br><br>";
 
 }
 
