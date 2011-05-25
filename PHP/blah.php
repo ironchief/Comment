@@ -63,17 +63,18 @@ class Comment {
 	public $commentContent;
 
 }
-$response = file_get_contents("http://disqus.com/api/get_forum_posts?user_api_key=az2jNJ6gR0S4fFI5g6teYJiEHdFEmzrm19iDJWpf5IYz8jFLUxHgHH2xg2uRKW31&api_version=1.1&forum_id=806579&limit=10");
+$response = file_get_contents("http://disqus.com/api/get_thread_list?user_api_key=az2jNJ6gR0S4fFI5g6teYJiEHdFEmzrm19iDJWpf5IYz8jFLUxHgHH2xg2uRKW31&api_version=1.1&forum_id=806579&limit=30");
 //$response = file_get_contents("http://localhost/");
-//echo $response . "<br>";
+echo $response . "<br>";
 
 $json_array = json_decode($response,true);
-
-
-$commentArray[0] = NULL;
+$threadIDs;
 
 for ($i = 0; $i < count($json_array["message"]); $i++) {
 	
+	$threadIDs[$i] = $json_array["message"][$i]["id"];
+	//echo $threadIDs[$i];
+	/*
 	$userName = $json_array["message"][$i]["author"]["display_name"];
 
 	if ($userName == null)
@@ -95,15 +96,26 @@ for ($i = 0; $i < count($json_array["message"]); $i++) {
 	$aComment->commentContent = $commentContent;
 
 	$commentArray[$i] = $aComment;
+
+	*/
 }
 
+for ($i = 0; $i < count($threadIDs); $i++) {
+
+$response = file_get_contents("http://disqus.com/api/get_thread_posts?user_api_key=az2jNJ6gR0S4fFI5g6teYJiEHdFEmzrm19iDJWpf5IYz8jFLUxHgHH2xg2uRKW31&api_version=1.1&thread_id=".$threadIDs[$i]."&limit=2");
+
+echo "<br>".$response."<br>";
+
+}
+
+/*
 for ($i = 0; $i < count($commentArray); $i++) {
 
 	echo "<b>".$commentArray[$i]->userName."</b> <i>posted a comment on</i> <a href =".$commentArray[$i]->storyURL.">".$commentArray[$i]->storyName."</a>";
 	echo "<br>";
 	echo "* ".$commentArray[$i]->commentContent."<br><br>";
 }
-
+*/
 ?>
 
 </body>
