@@ -65,7 +65,7 @@ class Comment {
 }
 $response = file_get_contents("http://disqus.com/api/get_thread_list?user_api_key=az2jNJ6gR0S4fFI5g6teYJiEHdFEmzrm19iDJWpf5IYz8jFLUxHgHH2xg2uRKW31&api_version=1.1&forum_id=806579&limit=30");
 //$response = file_get_contents("http://localhost/");
-echo $response . "<br>";
+//echo $response . "<br>";
 
 $json_array = json_decode($response,true);
 $threadIDs;
@@ -73,6 +73,7 @@ $threadIDs;
 for ($i = 0; $i < count($json_array["message"]); $i++) {
 	
 	$threadIDs[$i] = $json_array["message"][$i]["id"];
+
 	//echo $threadIDs[$i];
 	/*
 	$userName = $json_array["message"][$i]["author"]["display_name"];
@@ -98,24 +99,66 @@ for ($i = 0; $i < count($json_array["message"]); $i++) {
 	$commentArray[$i] = $aComment;
 
 	*/
+
+//	echo "Thread ID: ".$threadIDs[$i]."<br>";
+//	echo "Thread count: ".count($threadIDs)."<br>";
 }
 
 for ($i = 0; $i < count($threadIDs); $i++) {
 
-$response = file_get_contents("http://disqus.com/api/get_thread_posts?user_api_key=az2jNJ6gR0S4fFI5g6teYJiEHdFEmzrm19iDJWpf5IYz8jFLUxHgHH2xg2uRKW31&api_version=1.1&thread_id=".$threadIDs[$i]."&limit=2");
+	//echo "Thread count: ".count($threadIDs)."<br>";
+	//echo "Thread ID: ".$threadIDs[$i]." ".$i."<br>";
 
-echo "<br>".$response."<br>";
+	$response = file_get_contents("http://disqus.com/api/get_thread_posts?user_api_key=az2jNJ6gR0S4fFI5g6teYJiEHdFEmzrm19iDJWpf5IYz8jFLUxHgHH2xg2uRKW31&api_version=1.1&thread_id=".$threadIDs[$i]."&limit=5");
+
+	$json_array = json_decode($response,true);
+	//echo "<br>".$response."<br>";
+
+	if ($json_array["message"] == NULL) {
+		echo "No comments ...<br><br>";
+		continue;
+	}
+
+	for ($j = 0; $j < count($json_array["message"]); $j++) {
+
+		$aComment = new Comment();
+
+		$userName = $json_array["message"][$j]["author"]["display_name"];
+
+		if ($userName == null)
+			$userName = $json_array["message"][$j]["author"]["username"];
+	
+		if ($userName == null)
+			$userName = $json_array["message"][$j]["anonymous_author"]["name"];
+
+		$storyName = $json_array["message"][$j]["thread"]["title"];
+		$storyURL = $json_array["message"][$j]["thread"]["url"];
+		$commentContent = $json_array["message"][$j]["message"];
+
+		$aComment = new Comment();
+		$aComment->userName = $userName;
+		$aComment->storyName = $storyName;
+		$aComment->storyURL = $storyURL;
+		$aComment->commentContent = $commentContent;
+
+		$commentArray[$j] = $aComment;
+				
+	}
+
+
+	
+	for ($j = 0; $j < count($commentArray); $j++) {
+
+		echo "<b>".$commentArray[$j]->userName."</b> <i>posted a comment on</i> <a href =".$commentArray[$j]->storyURL.">".$commentArray[$j]->storyName."</a>";
+		echo "<br>";
+		echo "* ".$commentArray[$j]->commentContent."<br><br>";
+	}	
+	echo "---<br><br>";
 
 }
 
-/*
-for ($i = 0; $i < count($commentArray); $i++) {
 
-	echo "<b>".$commentArray[$i]->userName."</b> <i>posted a comment on</i> <a href =".$commentArray[$i]->storyURL.">".$commentArray[$i]->storyName."</a>";
-	echo "<br>";
-	echo "* ".$commentArray[$i]->commentContent."<br><br>";
-}
-*/
+
 ?>
 
 </body>
