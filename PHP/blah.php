@@ -8,6 +8,8 @@ class Comment {
 	public $storyName;
 	public $storyURL;
 	public $commentContent;
+	public $commentLikes;
+	public $bestConfidence;
 
 }
 
@@ -16,12 +18,38 @@ class Thread {
 	public $threadURL;
 	public $threadName;
 }
+
+//comment sorting comparison
+function cmp($a, $b)
+{
+	$a = $a->bestConfidence;
+	$b = $b->bestConfidence;
+    if ($a == $b) {
+        return 0;
+    }
+    return ($a < $b) ? 1 : -1;
+}
+
+// Wilson scoring algorithm
+function wilsonScore($likes, $dislikes)
+{
+	$n = $likes + $dislikes;
+	if ($n == 0){
+		return 0;
+	}
+	$z = 1; //1.0 = 85%, 1.6 = 95%
+	$phat = $likes / $n;
+	$score = sqrt($phat+$z*$z/(2*$n)-$z*(($phat*(1-$phat)+$z*$z/(4*$n))/$n))/(1+$z*$z/$n);
+	return $score;
+}
+
 $response = file_get_contents("http://disqus.com/api/get_thread_list?user_api_key=az2jNJ6gR0S4fFI5g6teYJiEHdFEmzrm19iDJWpf5IYz8jFLUxHgHH2xg2uRKW31&api_version=1.1&forum_id=806579&limit=30");
 //echo $response . "<br>";
 
 $json_array = json_decode($response,true);
 $threadIDs;
 
+//Parse JSON and extract the Threads
 for ($i = 0; $i < count($json_array["message"]); $i++) {
 
 	$aThread = new Thread();
@@ -32,6 +60,7 @@ for ($i = 0; $i < count($json_array["message"]); $i++) {
 	$threadIDs[$i] = $aThread;	
 }
 
+//Comments
 for ($i = 0; $i < count($threadIDs); $i++) {
 
 	//echo "Thread count: ".count($threadIDs)."<br>";
@@ -51,6 +80,7 @@ for ($i = 0; $i < count($threadIDs); $i++) {
 
 	echo "<h2><a href =".$threadIDs[$i]->threadURL.">".$threadIDs[$i]->threadName."</a>:</h2>";
 
+	//Parse JSON and make new comment object
 	for ($j = 0; $j < count($json_array["message"]); $j++) {
 
 		$aComment = new Comment();
@@ -66,17 +96,24 @@ for ($i = 0; $i < count($threadIDs); $i++) {
 		$storyName = $json_array["message"][$j]["thread"]["title"];
 		$storyURL = $json_array["message"][$j]["thread"]["url"];
 		$commentContent = $json_array["message"][$j]["message"];
+		$commentLikes = $json_array["message"][$j]["likes"];
 
 		$aComment = new Comment();
 		$aComment->userName = $userName;
 		$aComment->storyName = $storyName;
 		$aComment->storyURL = $storyURL;
 		$aComment->commentContent = $commentContent;
+		$aComment->commentLikes = $commentLikes;
+		$aComment->bestConfidence = wilsonScore($commentLikes, 0);
 
 		$commentArray[$j] = $aComment;
 				
 	}
 	
+	//Sort Comments
+	usort($commentArray, "cmp");
+	
+	//Display comments
 	for ($j = 0; $j < count($commentArray); $j++) {
 
 		echo "<b>".$commentArray[$j]->userName."</b> <i>says:</i>";
