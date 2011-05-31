@@ -43,6 +43,18 @@ function wilsonScore($likes, $dislikes)
 	return $score;
 }
 
+function hotScore($likes, $time)
+{
+	$order = log(max($likes, 1), 10);
+	$source = strtotime($time);
+	$now = getdate();
+	date_default_timezone_set('UTC');
+	//$interval = date_diff($source, $now);
+	$seconds = round(abs($now-$source));
+	$score = round(order + sign * seconds / 45000, 7)
+	return $score;
+}
+
 $response = file_get_contents("http://disqus.com/api/get_thread_list?user_api_key=az2jNJ6gR0S4fFI5g6teYJiEHdFEmzrm19iDJWpf5IYz8jFLUxHgHH2xg2uRKW31&api_version=1.1&forum_id=806579&limit=30");
 //echo $response . "<br>";
 
