@@ -51,7 +51,7 @@ function hotScore($likes, $time)
 	date_default_timezone_set('UTC');
 	//$interval = date_diff($source, $now);
 	$seconds = round(abs($now-$source));
-	$score = round(order + sign * seconds / 45000, 7)
+	$score = round(order + sign * seconds / 45000, 7);
 	return $score;
 }
 
