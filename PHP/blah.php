@@ -42,18 +42,7 @@ function wilsonScore($likes, $dislikes)
 	$score = sqrt($phat+$z*$z/(2*$n)-$z*(($phat*(1-$phat)+$z*$z/(4*$n))/$n))/(1+$z*$z/$n);
 	return $score;
 }
-//http://www.google.com/url?sa=D&q=http://disqus.com/api/3.0/threads/list.json%3Fapi_secret%3DAPI_SECRET%26forum%3Dilikeplaces%26thread%3Dlink:http://www.ilikeplaces.com/page/Napa_of_California%3FWOEID%3D12587697
-//$response = file_get_contents("http://disqus.com/api/get_thread_list?user_api_key=az2jNJ6gR0S4fFI5g6teYJiEHdFEmzrm19iDJWpf5IYz8jFLUxHgHH2xg2uRKW31&api_version=1.1&forum_id=806579&limit=30");
-//$response = file_get_contents("http://disqus.com/api/3.0/threads/list.json?api_key=    CojCPV8i9ajJWTV8tRqBT0KpzHNDerxm3gvLp8MYGtw2J36r6tosHyLTMX9TiSWO&forum=806579");
-require('disqusapi/disqusapi.php');
 
-<<<<<<< HEAD
-$secret_key = Z2svV8MrCFPAxsgypNlvyiNCX6SaZsqx0GY6DCdODlTaBTy8tcoWFj4Jl8xoQQ1G;
-$disqus = new DisqusAPI($secret_key);
-$threads = $disqus->threads->list(array('forum'=>'kazizlocalhost'));
-print_r($threads[0]);
-echo "<br>". $threads[0]->id."<br>";
-=======
 function hotScore($likes, $time)
 {
 	$order = log(max($likes, 1), 10);
@@ -66,14 +55,20 @@ function hotScore($likes, $time)
 	return $score;
 }
 
-$response = file_get_contents("http://disqus.com/api/get_thread_list?user_api_key=az2jNJ6gR0S4fFI5g6teYJiEHdFEmzrm19iDJWpf5IYz8jFLUxHgHH2xg2uRKW31&api_version=1.1&forum_id=806579&limit=30");
-//echo $response . "<br>";
->>>>>>> 78ce8a49e8d99f8dde671220dcaabe5ba69d20db
 
-echo $secret_key;
+// Disqus API
+require('disqusapi/disqusapi.php');
+
+// Fetch list of threads
+$secret_key = Z2svV8MrCFPAxsgypNlvyiNCX6SaZsqx0GY6DCdODlTaBTy8tcoWFj4Jl8xoQQ1G;
+$disqus = new DisqusAPI($secret_key);
+$threads = $disqus->threads->list(array('forum'=>'kazizlocalhost'));
+
+//print_r($threads[0]);
+//echo $secret_key;
 
 $listOfThreads;
-//Parse JSON and extract the Threads
+//Parse JSON and extract useful info from the thread data, and put that info in an array
 for ($i = 0; $i < count($threads); $i++) {
 
 	$aThread = new Thread();
@@ -82,55 +77,58 @@ for ($i = 0; $i < count($threads); $i++) {
 	$aThread->threadURL = $threads[$i]->link;
 	$aThread->threadName = $threads[$i]->title;
 	$listOfThreads[$i] = $aThread;	
+
+// Test to make sure threads being taken in correctly.
+/*
 	echo $aThread->threadID."<br>";
 	echo $aThread->threadURL."<br>";
 	echo $aThread->threadName."<br>";
+*/
 }
 
 //Comments
 
-echo count($listOfThreads);
-
-
-
+// fetch the comments from each of the threads in turn
 for ($i = 0; $i < count($listOfThreads); $i++) {
 
+	// get JSON
 	$posts = $disqus->posts->list(array('thread'=>$threads[$i]->id));
 
-	print_r($posts[$i]);
-}
-/*
+	// echo div tags and CSS for formatting
 	echo "<div style=\"border: 4px solid rgb(0, 0, 0)\">";
 	echo "<div style=\"margin: 15px\">";
 
 	echo "<h2><a href =".$listOfThreads[$i]->threadURL.">".$listOfThreads[$i]->threadName."</a>:</h2>";
 
+	print_r($posts);
+	
 	//Parse JSON and make new comment object
 	for ($j = 0; $j < count($posts); $j++) {
 
 		$aComment = new Comment();
-		$userName = $posts[0]->author->username;
-	}
 
-		$storyName = $json_array["message"][$j]["thread"]["title"];
-		$storyURL = $json_array["message"][$j]["thread"]["url"];
-		$commentContent = $json_array["message"][$j]["message"];
-		$commentLikes = $json_array["message"][$j]["likes"];
-
-		$aComment = new Comment();
-		$aComment->userName = $userName;
-		$aComment->storyName = $storyName;
-		$aComment->storyURL = $storyURL;
-		$aComment->commentContent = $commentContent;
-		$aComment->commentLikes = $commentLikes;
-		$aComment->bestConfidence = wilsonScore($commentLikes, 0);
-
-		$commentArray[$j] = $aComment;
+		$aComment->userName = $posts[$j]->author->username;
+		$aComment->storyName = $listOfThreads[$i]->threadName;
+		$aComment->storyURL = $listOfThreads[$i]->threadURL;
+		$aComment->commentContent = $posts[$j]->message;
+		$aComment->commentLikes = $posts[$j]->likes;
+		$aComment->bestConfidence = wilsonScore($aComment->commentLikes, 0);
 				
+		$commentArray[$j] = $aComment;
+		
+		//echo "<br><br>".$commentContent."<br><br>";
 	}
-	
+
 	//Sort Comments
 	usort($commentArray, "cmp");
+
+	echo "</div></div>";
+	echo "<br><br>";
+}
+
+/*
+
+	
 	
 	//Display comments
 	for ($j = 0; $j < count($commentArray); $j++) {
