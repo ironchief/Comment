@@ -100,14 +100,14 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 
 	echo "<h2><a href =".$listOfThreads[$i]->threadURL.">".$listOfThreads[$i]->threadName."</a>:</h2>";
 
-	print_r($posts);
+//	print_r($posts[1]);
 	
 	//Parse JSON and make new comment object
 	for ($j = 0; $j < count($posts); $j++) {
 
 		$aComment = new Comment();
 
-		$aComment->userName = $posts[$j]->author->username;
+		$aComment->userName = $posts[$j]->author->name;
 		$aComment->storyName = $listOfThreads[$i]->threadName;
 		$aComment->storyURL = $listOfThreads[$i]->threadURL;
 		$aComment->commentContent = $posts[$j]->message;
@@ -122,6 +122,14 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 	//Sort Comments
 	usort($commentArray, "cmp");
 
+	//Display comments
+	for ($j = 0; $j < count($commentArray); $j++) {
+
+		echo "<b>".$commentArray[$j]->userName."</b> <i>says:</i>";
+		echo "<br>";
+		echo "<ul>\"".$commentArray[$j]->commentContent."\"</ul>";
+	}
+
 	echo "</div></div>";
 	echo "<br><br>";
 }
@@ -130,13 +138,7 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 
 	
 	
-	//Display comments
-	for ($j = 0; $j < count($commentArray); $j++) {
-
-		echo "<b>".$commentArray[$j]->userName."</b> <i>says:</i>";
-		echo "<br>";
-		echo "<ul>\"".$commentArray[$j]->commentContent."\"</ul>";
-	}	
+	
 	echo "</div></div>";
 	echo "<br><br>";
 }
