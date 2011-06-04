@@ -47,11 +47,28 @@ function wilsonScore($likes, $dislikes)
 //$response = file_get_contents("http://disqus.com/api/3.0/threads/list.json?api_key=    CojCPV8i9ajJWTV8tRqBT0KpzHNDerxm3gvLp8MYGtw2J36r6tosHyLTMX9TiSWO&forum=806579");
 require('disqusapi/disqusapi.php');
 
+<<<<<<< HEAD
 $secret_key = Z2svV8MrCFPAxsgypNlvyiNCX6SaZsqx0GY6DCdODlTaBTy8tcoWFj4Jl8xoQQ1G;
 $disqus = new DisqusAPI($secret_key);
 $threads = $disqus->threads->list(array('forum'=>'kazizlocalhost'));
 print_r($threads[0]);
 echo "<br>". $threads[0]->id."<br>";
+=======
+function hotScore($likes, $time)
+{
+	$order = log(max($likes, 1), 10);
+	$source = strtotime($time);
+	$now = getdate();
+	date_default_timezone_set('UTC');
+	//$interval = date_diff($source, $now);
+	$seconds = round(abs($now-$source));
+	$score = round(order + sign * seconds / 45000, 7);
+	return $score;
+}
+
+$response = file_get_contents("http://disqus.com/api/get_thread_list?user_api_key=az2jNJ6gR0S4fFI5g6teYJiEHdFEmzrm19iDJWpf5IYz8jFLUxHgHH2xg2uRKW31&api_version=1.1&forum_id=806579&limit=30");
+//echo $response . "<br>";
+>>>>>>> 78ce8a49e8d99f8dde671220dcaabe5ba69d20db
 
 echo $secret_key;
 
