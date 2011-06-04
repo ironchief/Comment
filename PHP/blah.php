@@ -93,7 +93,10 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 
 	// get JSON
 	$posts = $disqus->posts->list(array('thread'=>$threads[$i]->id));
-
+	
+	if (count($posts) == 0)
+		continue;
+	
 	// echo div tags and CSS for formatting
 	echo "<div style=\"border: 4px solid rgb(0, 0, 0)\">";
 	echo "<div style=\"margin: 15px\">";
