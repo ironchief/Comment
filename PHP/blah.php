@@ -98,9 +98,8 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 		continue;
 	
 	// echo div tags and CSS for formatting
-	echo "<div style=\"border: 4px solid rgb(0, 0, 0)\">";
-	echo "<div style=\"margin: 15px\">";
-
+	echo "<div style=\"margin: 15px; padding-left: 15px; border: 4px solid rgb(0, 0, 0); \">";
+	//echo "<div id=\"CommentBox\">"; 
 	echo "<h2><a href =".$listOfThreads[$i]->threadURL.">".$listOfThreads[$i]->threadName."</a>:</h2>";
 
 //	print_r($posts[1]);
@@ -127,25 +126,19 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 
 	//Display comments
 	for ($j = 0; $j < count($commentArray); $j++) {
+		
+		if ($j >= 5)
+			break;
 
 		echo "<b>".$commentArray[$j]->userName."</b> <i>says:</i>";
 		echo "<br>";
 		echo "<ul>\"".$commentArray[$j]->commentContent."\"</ul>";
 	}
 
-	echo "</div></div>";
+	echo "</div>";//</div>";
 	echo "<br><br>";
 }
 
-/*
-
-	
-	
-	
-	echo "</div></div>";
-	echo "<br><br>";
-}
-*/
 ?>
 
 </body>
