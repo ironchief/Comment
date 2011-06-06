@@ -80,8 +80,8 @@ function hotScore($likes, $time)
 	$source = strtotime($time);
 	$now = getdate();
 	date_default_timezone_set('UTC');
-	//$interval = date_diff($source, $now);
-	$seconds = round(abs($now-$source));
+	$interval = date_diff($source, $now);
+	$seconds = round(abs($interval));
 	$score = round(order + sign * seconds / 45000, 7);
 	//date_default_timezone_set('America/Chicago');
 	return $score;
@@ -92,7 +92,7 @@ function hotScore($likes, $time)
 require('disqusapi/disqusapi.php');
 
 // Fetch list of threads
-$secret_key = Z2svV8MrCFPAxsgypNlvyiNCX6SaZsqx0GY6DCdODlTaBTy8tcoWFj4Jl8xoQQ1G;
+$secret_key = 'Z2svV8MrCFPAxsgypNlvyiNCX6SaZsqx0GY6DCdODlTaBTy8tcoWFj4Jl8xoQQ1G';
 $disqus = new DisqusAPI($secret_key);
 $threads = $disqus->threads->list(array('forum'=>'kazizlocalhost'));
 
@@ -158,7 +158,7 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 		$aComment->commentContent = $posts[$j]->message;
 		$aComment->commentLikes = $posts[$j]->likes;
 		$aComment->commentTime = $posts[$j]->createdAt;
-		$aComment->bestConfidence = wilsonScore($aComment->commentLikes, 0);
+		$aComment->bestConfidence = hotScore($aComment->commentLikes, $aComment->commentTime);
 				
 		$commentArray[$j] = $aComment;
 
