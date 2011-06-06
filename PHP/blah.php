@@ -79,7 +79,6 @@ function hotScore($likes, $time)
 	$order = log(max($likes, 1), 10);
 	$source = strtotime($time);
 	$now = getdate();
-	date_default_timezone_set('UTC');
 	$interval = date_diff($source, $now);
 	$seconds = round(abs($interval));
 	$score = round(order + sign * seconds / 45000, 7);
@@ -87,7 +86,10 @@ function hotScore($likes, $time)
 	return $score;
 }
 
-
+function barScore($score)
+{
+	return "<div style='height:5px; width:".$score."px; background-color: #009ACF;'></div>";
+}
 // Disqus API
 require('disqusapi/disqusapi.php');
 
@@ -177,6 +179,7 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 		
 		$timestamp = strtotime($commentArray[$j]->commentTime);
 		echo "<b>".$commentArray[$j]->userName."</b> <i>says:</i><br>";
+		echo "<i>Hotness = </i><b>".$commentArray[$j]->bestConfidence."</b>".barscore($commentArray[$j]->bestConfidence);
 		echo "\"".$commentArray[$j]->commentContent."\"";
 
 		echo "<div style=\"text-align: right; font-size: 8pt;\">";
