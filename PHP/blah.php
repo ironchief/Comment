@@ -9,6 +9,7 @@ class Comment {
 	public $storyURL;
 	public $commentContent;
 	public $commentLikes;
+	public $commentTime;
 	public $bestConfidence;
 
 }
@@ -98,11 +99,11 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 		continue;
 	
 	// echo div tags and CSS for formatting
-	echo "<div style=\"margin: 15px; padding-left: 15px; border: 4px solid rgb(0, 0, 0); \">";
-	//echo "<div id=\"CommentBox\">"; 
-	echo "<h2><a href =".$listOfThreads[$i]->threadURL.">".$listOfThreads[$i]->threadName."</a>:</h2>";
+	echo "<div style=\"margin: 15px; padding: 15px; border: 4px solid rgb(0, 0, 0); \">"; // div per box
 
-//	print_r($posts[1]);
+	echo "<a href =".$listOfThreads[$i]->threadURL." style=\"text-decoration: underline; font-size: 18pt; font-family: Verdana, Helvetica, Arial, 'Lucida Grande'\">".$listOfThreads[$i]->threadName."</a>:<br><br>";
+	
+	//print_r($posts[1]);
 	
 	//Parse JSON and make new comment object
 	for ($j = 0; $j < count($posts); $j++) {
@@ -114,10 +115,11 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 		$aComment->storyURL = $listOfThreads[$i]->threadURL;
 		$aComment->commentContent = $posts[$j]->message;
 		$aComment->commentLikes = $posts[$j]->likes;
+		$aComment->commentTime = $posts[$j]->createdAt;
 		$aComment->bestConfidence = wilsonScore($aComment->commentLikes, 0);
 				
 		$commentArray[$j] = $aComment;
-		
+
 		//echo "<br><br>".$commentContent."<br><br>";
 	}
 
@@ -130,10 +132,17 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 		if ($j >= 5)
 			break;
 
-		echo "<b>".$commentArray[$j]->userName."</b> <i>says:</i>";
-		echo "<br>";
-		echo "<ul>\"".$commentArray[$j]->commentContent."\"</ul>";
+		$timestamp = strtotime($commentArray[$j]->commentTime);
+
+		echo "<b>".$commentArray[$j]->userName."</b> <i>says:</i><br>";
+		echo "\"".$commentArray[$j]->commentContent."\"";
+
+		echo "<div style=\"text-align: right; font-size: 8pt;\">";
+		echo "<i>comment posted on:</i> ".date("F dS, Y",$timestamp)." <i>at</i> ".date("g:ia",$timestamp);	
+		echo "</div><br>";	
 	}
+
+	echo "<center><a href =".$listOfThreads[$i]->threadURL." style=\"text-decoration: underline; font-size: 14pt;\">Join the Conversation!</a></center>";
 
 	echo "</div>";//</div>";
 	echo "<br><br>";
