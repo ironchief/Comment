@@ -29,7 +29,7 @@ function getTime ($time) {
 	$now = time();
 
 
-	date_default_timezone_set('UTC');
+	date_default_timezone_set('America/Chicago');
 /*	
 	echo date_default_timezone_get();
 	echo "post time: " .date("F dS, Y",$time)." <i>at</i> ".date("g:ia",$time)."<br>";
@@ -43,9 +43,11 @@ function getTime ($time) {
 	else if ($now - $time < 3600)
 		$timestr = strval(floor(($now-$time)/60))." minutes ago";
 	else if ($now - $time < 3600*24)
-		$timestr = strval(floor(($now-$time)/(60*24)))." hours ago";
+		$timestr = strval(floor(($now-$time)/(60*60)))." hours ago";
 	else
 		$timestr = date("F dS, Y",$time)." <i>at</i> ".date("g:ia",$time)."<br>";
+
+	date_default_timezone_set('UTC');
 
 	return $timestr;
 }
@@ -59,6 +61,12 @@ function cmp($a, $b)
         return 0;
     }
     return ($a < $b) ? 1 : -1;
+}
+
+function barScore($score)
+{	
+//	return "<div style='height:5px; width:".$score."px; background-color: #009ACF;'></div>";
+	return "<div style='height:5px; width:".strval(50)."px; background-color: #009ACF;'></div>";
 }
 
 // Wilson scoring algorithm
@@ -79,22 +87,20 @@ function hotScore($likes, $time)
 	$order = log(max($likes, 1), 10);
 	$source = strtotime($time);
 	$now = getdate();
-	$interval = date_diff($source, $now);
-	$seconds = round(abs($interval));
+	date_default_timezone_set('UTC');
+	//$interval = date_diff($source, $now);
+	$seconds = round(abs($now-$source));
 	$score = round(order + sign * seconds / 45000, 7);
 	//date_default_timezone_set('America/Chicago');
 	return $score;
 }
 
-function barScore($score)
-{
-	return "<div style='height:5px; width:".$score."px; background-color: #009ACF;'></div>";
-}
+
 // Disqus API
 require('disqusapi/disqusapi.php');
 
 // Fetch list of threads
-$secret_key = 'Z2svV8MrCFPAxsgypNlvyiNCX6SaZsqx0GY6DCdODlTaBTy8tcoWFj4Jl8xoQQ1G';
+$secret_key = Z2svV8MrCFPAxsgypNlvyiNCX6SaZsqx0GY6DCdODlTaBTy8tcoWFj4Jl8xoQQ1G;
 $disqus = new DisqusAPI($secret_key);
 $threads = $disqus->threads->list(array('forum'=>'kazizlocalhost'));
 
@@ -145,10 +151,15 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 	$timestamp = strtotime($listOfThreads[$i]->threadTime);
 	$timestampLastPost = strtotime($posts[0]->createdAt);
 	//print_r($posts[0]);
+
+
+	date_default_timezone_set('America/Chicago');
 	
 	echo "<b>Story posted on: </b>".date("F dS, Y",$timestamp)." <i>at</i> ".date("g:ia",$timestamp)."<br>";
 	echo "<b>Number of comments: </b>".$listOfThreads[$i]->threadComments."<br><br>";
-	
+
+
+	date_default_timezone_set('UTC');	
 	//Parse JSON and make new comment object
 	for ($j = 0; $j < count($posts); $j++) {
 
@@ -160,7 +171,7 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 		$aComment->commentContent = $posts[$j]->message;
 		$aComment->commentLikes = $posts[$j]->likes;
 		$aComment->commentTime = $posts[$j]->createdAt;
-		$aComment->bestConfidence = hotScore($aComment->commentLikes, $aComment->commentTime);
+		$aComment->bestConfidence = wilsonScore($aComment->commentLikes, 0);
 				
 		$commentArray[$j] = $aComment;
 
@@ -179,7 +190,8 @@ for ($i = 0; $i < count($listOfThreads); $i++) {
 		
 		$timestamp = strtotime($commentArray[$j]->commentTime);
 		echo "<b>".$commentArray[$j]->userName."</b> <i>says:</i><br>";
-		echo "<i>Hotness = </i><b>".$commentArray[$j]->bestConfidence."</b>".barscore($commentArray[$j]->bestConfidence);
+
+		//echo "<i>Hotness = </i><b>".$commentArray[$j]->bestConfidence."</b>".barscore($commentArray[$j]->bestConfidence);
 		echo "\"".$commentArray[$j]->commentContent."\"";
 
 		echo "<div style=\"text-align: right; font-size: 8pt;\">";
